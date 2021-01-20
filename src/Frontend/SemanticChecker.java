@@ -221,8 +221,10 @@ public class SemanticChecker implements ASTVisitor {
     @Override public void visit(funcCallExpr it) {
         if (it.firstExpr instanceof varExpr) {
             it.firstExpr.type = current.getFunction(((varExpr)it.firstExpr).id, true, it.pos);
-        } else it.firstExpr.accept(this);
-        if (!(it.firstExpr.type instanceof funcType)) throw new semanticError("funcCallExpr:not a function", it.pos);
+        } else {
+            it.firstExpr.accept(this);
+            if (!(it.firstExpr.type instanceof funcType)) throw new semanticError("funcCallExpr:not a function", it.pos);
+        }
         it.List.forEach(x -> x.accept(this));
         funcType functype = (funcType)it.firstExpr.type;
         if(functype.List.size() != it.List.size()) throw new semanticError("funcCallExpr:size not match", it.pos);
