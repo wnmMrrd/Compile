@@ -4,8 +4,8 @@ import AST.*;
 import Util.symbol.*;
 
 public class SymbolCollector implements ASTVisitor {
-    Scope global;
-    Scope current = null;
+    Scope global, current = null;
+    String classname = null;
 
     public SymbolCollector(Scope global) {
         this.global = global;
@@ -69,7 +69,7 @@ public class SymbolCollector implements ASTVisitor {
     //Def
     @Override
     public void visit(classDef it) {
-        classType t = new classType(it.classname);
+        classType t = new classType(classname = it.classname);
         current = new Scope(current);
         it.varList.forEach(x -> x.accept(this));
         it.funcList.forEach(x -> x.accept(this));
@@ -78,11 +78,13 @@ public class SymbolCollector implements ASTVisitor {
         t.funcmap = current.funcmap;
         current = current.parentScope;
         current.defineType(it.classname, t, it.pos);
+        classname = null;
     }
 
     @Override
     public void visit(funcDef it) {
-        current.defineFunction(it.id, new funcType(it.id), it.pos);
+        if (classname == null) current.defineFunction(it.id, new funcType(it.id), it.pos);
+        else current.defineFunction(it.id, new funcType("my_"+classname+"_"+it.id), it.pos);
     }
 
     //Stmt

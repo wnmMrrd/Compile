@@ -3,6 +3,8 @@ import Frontend.ASTBuilder;
 import Frontend.SemanticChecker;
 import Frontend.SymbolCollector;
 import Frontend.TypeCollector;
+import IR.IRBlockList;
+import IR.IRBuilder;
 import Parser.MxLexer;
 import Parser.MxParser;
 import Util.MxErrorListener;
@@ -19,9 +21,9 @@ import java.io.FileInputStream;
 public class Main {
     public static void main(String[] args) throws Exception {
 
-        InputStream input = System.in;
-        //String name = "test.mx";
-        //InputStream input = new FileInputStream(name);
+        //InputStream input = System.in;
+        String name = "test.mx";
+        InputStream input = new FileInputStream(name);
 
         try {
             ProgramNode ASTRoot;
@@ -42,7 +44,10 @@ public class Main {
             new TypeCollector(global).visit(ASTRoot);
             //System.out.println(3);
             global.varmap.clear();
-            new SemanticChecker(global).visit(ASTRoot);
+            IRBlockList bkList = new IRBlockList();
+            new SemanticChecker(global, bkList).visit(ASTRoot);
+            new IRBuilder(global, bkList).visit(ASTRoot);
+            bkList.print();
         } catch (Error er) {
             System.err.println(er.toString());
             throw new RuntimeException();

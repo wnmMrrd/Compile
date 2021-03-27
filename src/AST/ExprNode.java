@@ -4,7 +4,7 @@ import Util.position;
 import Util.symbol.Type;
 
 public abstract class ExprNode extends ASTNode {
-    public Type type;
+    public Type type, From = null;
     public boolean assignable = false;
 
     public ExprNode(position pos) {

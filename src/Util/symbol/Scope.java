@@ -1,19 +1,30 @@
 package Util.symbol;
 
 import AST.TypeNode;
+import IR.IRRegIdentifier;
 import Util.error.semanticError;
 import Util.position;
+import Util.RegIdAllocator;
 
 import java.util.HashMap;
 
 public class Scope {
+
+    public Scope parentScope;
+
+    public RegIdAllocator idSet;
+    public int idTotal = 0;
+
     public HashMap<String, Type> typemap = new HashMap<>();
     public HashMap<String, varType> varmap = new HashMap<>();
     public HashMap<String, funcType> funcmap = new HashMap<>();
-    public Scope parentScope;
+    public HashMap<String, IRRegIdentifier> regmap = new HashMap<>();
+    public HashMap<String, Integer> idmap = new HashMap<>();
 
     public Scope(Scope parentScope) {
         this.parentScope = parentScope;
+        if (parentScope != null) idSet = parentScope.idSet;
+        else idSet = new RegIdAllocator();
     }
 
     public boolean containsType(String name, boolean lookUpon) {
@@ -38,10 +49,29 @@ public class Scope {
         varmap.put(name, value);
     }
 
+    public IRRegIdentifier defineVarId(String name, int type) {
+        idmap.put(name, idTotal++);
+        IRRegIdentifier reg = idSet.RegIdAlloca(type);
+        regmap.put(name, reg);
+        return reg;
+    }
+
     public varType getVariable(String name, boolean lookUpon, position pos) {
         if (varmap.containsKey(name)) return varmap.get(name);
         else if (parentScope != null && lookUpon) return parentScope.getVariable(name, true, pos);
         else throw new semanticError("variable not define", pos);
+    }
+
+    public IRRegIdentifier getRegId(String name, boolean lookUpon) {
+        if (regmap.containsKey(name)) return regmap.get(name);
+        else if (parentScope != null && lookUpon) return parentScope.getRegId(name, lookUpon);
+        else return null;
+    }
+
+    public int getIdVariable(String name, boolean lookUpon) {
+        if (idmap.containsKey(name)) return idmap.get(name);
+        else if (parentScope != null && lookUpon) return parentScope.getIdVariable(name, true);
+        return 0;
     }
 
     public void defineFunction(String name, funcType value, position pos) {
