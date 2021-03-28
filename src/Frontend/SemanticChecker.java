@@ -35,7 +35,7 @@ public class SemanticChecker implements ASTVisitor {
     @Override public void visit(classDef it) {
         current = new Scope(current);
         current.idSet = new RegIdAllocator();
-        it.scope = current;
+        //it.scope = current;
         currentclass = (classType)global.typemap.get(it.classname);
         currentclass.varmap.forEach((key, value) -> current.defineVariable(key, value, it.pos));
         currentclass.funcmap.forEach((key, value) -> current.defineFunction(key, value, it.pos));
@@ -43,10 +43,10 @@ public class SemanticChecker implements ASTVisitor {
             if (!it.constructor.id.equals(it.classname)) throw new semanticError("classDef:constructor name wrong", it.pos);
             it.constructor.accept(this);
         }
-        it.varList.forEach( x -> {
-            x.scope=current;
-            x.scope.defineVarId(x.id, 11);
-                });
+        /*it.varList.forEach( x -> {
+          //  x.scope=current;
+          //  x.scope.defineVarId(x.id, 11);
+                });*/
         it.funcList.forEach(x -> x.accept(this));
         current = current.parentScope;
         currentclass = null;
@@ -58,7 +58,7 @@ public class SemanticChecker implements ASTVisitor {
         returndone = false;
         current = new Scope(current);
         current.idSet = new RegIdAllocator();
-        it.scope = current;
+        //it.scope = current;
         if (currentclass != null) {
             current.defineVariable("!this", new varType(currentclass, "!this"), it.pos);
             current.defineVarId("!this", 1);
@@ -66,8 +66,8 @@ public class SemanticChecker implements ASTVisitor {
         it.List.forEach(
                 x -> {
                     current.defineVariable(x.id, new varType(global.getType(x.type), x.id), x.pos);
-                    x.scope = current;
-                    x.regId = current.defineVarId(x.id, 1);
+                    //x.scope = current;
+                    //x.regId = current.defineVarId(x.id, 1);
                 });
         it.body.accept(this);
         current = current.parentScope;
@@ -81,7 +81,7 @@ public class SemanticChecker implements ASTVisitor {
     }
 
     @Override public void visit(blockStmt it) {
-        it.scope = current;
+        //it.scope = current;
         it.stmtList.forEach(x -> {
             if (x instanceof blockStmt) {
                 current = new Scope(current);
@@ -94,7 +94,7 @@ public class SemanticChecker implements ASTVisitor {
     }
 
     @Override public void visit(varDefSubStmt it) {
-        it.scope = current;
+        //it.scope = current;
         Type vartype = global.getType(it.type);
         if (vartype.isVoid()) throw new semanticError("varDefSubStmt:void variable", it.pos);
         if (it.expr != null) {
@@ -109,12 +109,12 @@ public class SemanticChecker implements ASTVisitor {
     }
 
     @Override public void visit(varDefStmt it) {
-        it.scope = current;
+        //it.scope = current;
         it.varList.forEach(x -> x.accept(this));
     }
 
     @Override public void visit(ifStmt it) {
-        it.scope = current;
+        //it.scope = current;
         it.cond.accept(this);
         if (!it.cond.type.isBool()) throw new semanticError("ifStmt:if condition not bool", it.pos);
         current = new Scope(current);
@@ -128,7 +128,7 @@ public class SemanticChecker implements ASTVisitor {
     }
 
     @Override public void visit(forStmt it) {
-        it.scope = current;
+        //it.scope = current;
         if (it.init != null) it.init.accept(this);
         if (it.cond != null) {
             it.cond.accept(this);
@@ -143,7 +143,7 @@ public class SemanticChecker implements ASTVisitor {
     }
 
     @Override public void visit(whileStmt it) {
-        it.scope = current;
+        //it.scope = current;
         it.cond.accept(this);
         if (!it.cond.type.isBool()) throw new semanticError("whileStmt:while condition not bool", it.pos);
         depth++;
@@ -154,17 +154,17 @@ public class SemanticChecker implements ASTVisitor {
     }
 
     @Override public void visit(breakStmt it) {
-        it.scope = current;
+        //it.scope = current;
         if (depth == 0) throw new semanticError("breakStmt:break outside loop", it.pos);
     }
 
     @Override public void visit(continueStmt it) {
-        it.scope = current;
+        //it.scope = current;
         if (depth == 0) throw new semanticError("continueStmt:continue outside loop", it.pos);
     }
 
     @Override public void visit(returnStmt it) {
-        it.scope = current;
+        //it.scope = current;
         returndone = true;
         if (it.value == null) {
             if (!currentreturntype.isVoid()) throw new semanticError("returnStmt:void contains return", it.pos);
@@ -175,7 +175,7 @@ public class SemanticChecker implements ASTVisitor {
     }
 
     @Override public void visit(pureExprStmt it) {
-        it.scope = current;
+        ///it.scope = current;
         it.expr.accept(this);
     }
 
@@ -183,8 +183,8 @@ public class SemanticChecker implements ASTVisitor {
     }
 
     @Override public void visit(varExpr it) {
-        it.scope = current;
-        it.regId = current.getRegId(it.id ,true);
+        //it.scope = current;
+        //it.regId = current.getRegId(it.id ,true);
         it.type = current.getVariable(it.id, true, it.pos).origintype;
     }
 
@@ -194,22 +194,22 @@ public class SemanticChecker implements ASTVisitor {
     }
 
     @Override public void visit(DecimalIntegerExpr it) {
-        it.scope = current;
+        //it.scope = current;
         it.type = new simpleType("int");
     }
 
     @Override public void visit(BoolValueExpr it) {
-        it.scope = current;
+        //it.scope = current;
         it.type = new simpleType("bool");
     }
 
     @Override public void visit(StringLiteralExpr it) {
-        it.scope = current;
+        //it.scope = current;
         it.type = new simpleType("string");
     }
 
     @Override public void visit(NullExpr it) {
-        it.scope = current;
+        //it.scope = current;
         it.type = new simpleType("null");
     }
 
@@ -217,28 +217,28 @@ public class SemanticChecker implements ASTVisitor {
         it.firstExpr.accept(this);
         if (it.firstExpr.type instanceof arrayType && it.id.equals("size")) {
             it.type = new funcType(new simpleType("int"), "size");
-            it.From = it.firstExpr.type;
+            //it.From = it.firstExpr.type;
         } else if (it.firstExpr.type.isString() && it.id.equals("length")) {
             it.type = new funcType(new simpleType("int"), "length");
-            it.From = it.firstExpr.type;
+            //it.From = it.firstExpr.type;
         } else if (it.firstExpr.type.isString() && it.id.equals("substring")) {
             it.type = new funcType(new simpleType("string"), "substring");
             ((funcType)it.type).List.add(new varType(new simpleType("int"), "left"));
             ((funcType)it.type).List.add(new varType(new simpleType("int"), "right"));
-            it.From = it.firstExpr.type;
+            //it.From = it.firstExpr.type;
         } else if (it.firstExpr.type.isString() && it.id.equals("parseInt")) {
             it.type = new funcType(new simpleType("int"), "parseInt");
-            it.From = it.firstExpr.type;
+            //it.From = it.firstExpr.type;
         } else if (it.firstExpr.type.isString() && it.id.equals("ord")) {
             it.type = new funcType(new simpleType("int"), "ord");
             ((funcType)it.type).List.add(new varType(new simpleType("int"), "pos"));
-            it.From = it.firstExpr.type;
+            //it.From = it.firstExpr.type;
         } else if (it.firstExpr.type instanceof classType) {
             classType originclass = (classType)it.firstExpr.type;
             if (it.isfunc) {
                 if(originclass.funcmap.containsKey(it.id)) it.type = originclass.funcmap.get(it.id);
                 else throw new semanticError("memberExpr:function not included in class", it.pos);
-                it.From = it.firstExpr.type;
+                //it.From = it.firstExpr.type;
             } else {
                 if(originclass.varmap.containsKey(it.id)) it.type = originclass.varmap.get(it.id).origintype;
                 else throw new semanticError("memberExpr:variable not included in class", it.pos);
@@ -271,13 +271,13 @@ public class SemanticChecker implements ASTVisitor {
     @Override public void visit(funcCallExpr it) {
         if (it.firstExpr instanceof varExpr) {
             it.firstExpr.type = current.getFunction(((varExpr)it.firstExpr).id, true, it.pos);
-            if (currentclass != null && currentclass.funcmap.containsKey(((varExpr)it.firstExpr).id)) it.firstExpr.From = currentclass;
+            //if (currentclass != null && currentclass.funcmap.containsKey(((varExpr)it.firstExpr).id)) it.firstExpr.From = currentclass;
         } else {
             it.firstExpr.accept(this);
             if (!(it.firstExpr.type instanceof funcType)) throw new semanticError("funcCallExpr:not a function", it.pos);
         }
         it.List.forEach(x -> x.accept(this));
-        it.scope = current;
+        //it.scope = current;
         funcType functype = (funcType)it.firstExpr.type;
         if(functype.List.size() != it.List.size()) throw new semanticError("funcCallExpr:size not match", it.pos);
         for (int i=0; i<functype.List.size(); i++) {
