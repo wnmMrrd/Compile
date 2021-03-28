@@ -32,7 +32,7 @@ public class Main {
                     onlyIR = true;
                     break;
                 case "-test":
-                    String name = "test1.mx";
+                    String name = "test.mx";
                     input = new FileInputStream(name);
                     break;
             }
@@ -65,9 +65,6 @@ public class Main {
                     bkList.printASM();
                 }
             }
-            new IRBuilder(global, bkList).visit(ASTRoot);
-            bkList.initASM();
-            bkList.printASM();
         } catch (Error er) {
             System.err.println(er.toString());
             throw new RuntimeException();

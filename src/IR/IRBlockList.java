@@ -34,12 +34,12 @@ public class IRBlockList {
     }
 
     public void initASM() {
-        /*blocks.forEach(b -> b.expand());
+        blocks.forEach(b -> b.expand());
         blocks.forEach(b -> b.alloc());
         blocks.forEach(b -> b.expandLocal());
         blocks.forEach(b -> b.allocLocal());
         blocks.forEach(b -> b.cutMove());
-        blocks.forEach(b -> b.calcRAM());*/
+        blocks.forEach(b -> b.calcRAM());
     }
 
     public void printASM() {

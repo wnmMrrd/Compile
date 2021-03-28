@@ -52,17 +52,17 @@ public class IRBlock {
                         new_lines.add(new_line);
                         line.args.set(i, temp);
                     } else if (rd.type == 2) {
-                        IRRegIdentifier temp1 = idSet.RegIdAlloca(5), temp2 = idSet.RegIdAlloca(5);
+                        IRRegIdentifier temp = idSet.RegIdAlloca(5);
                         IRLine new_line = new IRLine(lineType.LOAD);
-                        new_line.args.add(temp1);
+                        new_line.args.add(temp);
                         new_line.args.add(rd);
                         new_lines.add(new_line);
                         new_line = new IRLine(lineType.LW);
-                        new_line.args.add(temp2);
+                        new_line.args.add(temp);
                         new_line.args.add(rd);
-                        new_line.args.add(temp1);
+                        new_line.args.add(temp);
                         new_lines.add(new_line);
-                        line.args.set(i, temp1);
+                        line.args.set(i, temp);
                     }
                 }
             }
@@ -81,6 +81,7 @@ public class IRBlock {
                             else an_temp = new IRRegIdentifier(rd.id-6, 7, false);
                             new_line.args.add(an_temp);
                             new_lines.add(new_line);
+                            line.args.set(0, temp1);
                         }
                         break;
                     case 6:
@@ -89,6 +90,7 @@ public class IRBlock {
                         new_line.args.add(temp1);
                         new_line.args.add(new IRRegIdentifier(rd.id, 5, false));
                         new_lines.add(new_line);
+                        line.args.set(0, temp1);
                         break;
                     case 1:
                     case 4:
@@ -97,19 +99,21 @@ public class IRBlock {
                         new_line.args.add(temp1);
                         new_line.args.add(rd);
                         new_lines.add(new_line);
+                        line.args.set(0, temp1);
                         break;
                     case 2:
                         temp1 = idSet.RegIdAlloca(5);
                         temp2 = idSet.RegIdAlloca(5);
                         new_line = new IRLine(lineType.LOAD);
-                        new_line.args.add(temp1);
+                        new_line.args.add(temp2);
                         new_line.args.add(rd);
                         new_lines.add(new_line);
                         new_line = new IRLine(lineType.SW);
-                        new_line.args.add(temp2);
-                        new_line.args.add(rd);
                         new_line.args.add(temp1);
+                        new_line.args.add(rd);
+                        new_line.args.add(temp2);
                         new_lines.add(new_line);
+                        line.args.set(0, temp1);
                         break;
                 }
             }
@@ -152,6 +156,7 @@ public class IRBlock {
                         new_line.args.add(temp1);
                         new_line.args.add(rd);
                         new_lines.add(new_line);
+                        line.args.set(0, temp1);
                         break;
                 }
             }
@@ -178,17 +183,17 @@ public class IRBlock {
     }
 
     public void easyAlloc(IRLine line, int l,int r) {
-        for (int i=l; i<=r; i++) {
+        for (int i=l; i<r; i++) {
             IRRegIdentifier rd = line.args.get(i), temp;
             if (rd.type == 5) {
                 if (used_reg[rd.id] == null) {
                     if (used_l_reg[rd.id] != null) temp = used_l_reg[rd.id];
                     else {
                         int reg = getFreeReg(rd.id);
-                        if (reg == 0) temp = used_l_reg[rd.id] = idSet.RegIdAlloca(1);
+                        if (reg == 0) temp = used_reg[rd.id] = idSet.RegIdAlloca(1);
                         else {
                             reg_free[reg] = 0;
-                            temp = used_l_reg[rd.id] = new IRRegIdentifier(reg, 0, false);
+                            temp = used_reg[rd.id] = new IRRegIdentifier(reg, 0, false);
                         }
                     }
                 } else temp = used_reg[rd.id];
@@ -199,7 +204,7 @@ public class IRBlock {
     }
 
     public void easyRelease(IRLine line, int l, int r) {
-        for (int i=l; i<=r; i++) {
+        for (int i=l; i<r; i++) {
             IRRegIdentifier rd = line.args.get(i), temp;
             if (rd.useId != null) {
                 if (used_l_reg[rd.useId] == null) {
@@ -346,11 +351,11 @@ public class IRBlock {
     public void cutMove() {
         ArrayList new_lines = new ArrayList<>();
         lines.forEach(line -> {
-            if (line.type != lineType.MOVE || line.args.get(0).id != line.args.get(0).id) new_lines.add(line);
+            if (line.type != lineType.MOVE || line.args.get(0).id != line.args.get(1).id) new_lines.add(line);
         });
         lines = new_lines;
     }
-    
+
     public void printASM(){
         System.out.println("\t.text");
         System.out.println("\t.align\t2");
