@@ -42,7 +42,7 @@ public class IRBlock {
                         IRLine new_line = new IRLine(lineType.LW);
                         new_line.args.add(temp);
                         new_line.args.add(new IRRegIdentifier(rd.id, 5, false));
-                        new_lines.add(line);
+                        new_lines.add(new_line);
                         line.args.set(i, temp);
                     } else if (rd.type == 1 || rd.type == 4) {
                         IRRegIdentifier temp = idSet.RegIdAlloca(5);
@@ -134,7 +134,7 @@ public class IRBlock {
                 }
                 for (; i<line.args.size(); i++) {
                     IRRegIdentifier rd = line.args.get(i);
-                    if (rd.type == 1 && rd.id < localSz) {
+                    if (rd.type == 1 && rd.id >= localSz) {
                         IRRegIdentifier temp = idSet.RegIdAlloca(5);
                         IRLine new_line = new IRLine(lineType.LW);
                         new_line.args.add(temp);
@@ -335,9 +335,9 @@ public class IRBlock {
         addrStartLocal = -4;
         if (containsCALL) {
             totalRAM++;
-            addrStartLocal = -4;
+            addrStartLocal -= 4;
         }
-        realRAM = ((totalRAM-1)/4+1)*16;
+        realRAM = (totalRAM/4+1)*16;
     }
 
     public int addrLocal(int id){
@@ -355,7 +355,7 @@ public class IRBlock {
         });
         lines = new_lines;
     }
-    
+
     public void printASM(){
         System.out.println("\t.text");
         System.out.println("\t.align\t2");
