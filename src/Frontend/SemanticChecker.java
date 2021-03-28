@@ -65,6 +65,7 @@ public class SemanticChecker implements ASTVisitor {
         }
         it.List.forEach(
                 x -> {
+                    current.defineVariable(x.id, new varType(global.getType(x.type), x.id), x.pos);
                     x.scope = current;
                     x.regId = current.defineVarId(x.id, 1);
                 });

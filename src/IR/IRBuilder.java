@@ -145,6 +145,7 @@ public class IRBuilder implements ASTVisitor {
         if (it.elseStmt != null) {
             line = new IRLine(lineType.LABEL);
             line.label = elseLab;
+            //if (this.label == )
             currentBlock.lines.add(line);
             it.elseStmt.accept(this);
         }
@@ -426,7 +427,6 @@ public class IRBuilder implements ASTVisitor {
             currentBlock.lines.add(line);
 
             if (((classType)it.type).constructor != null) {
-
                 line = new IRLine(lineType.CALL);
                 line.func = "my_c_"+((classType)it.type).classname+"_"+((classType)it.type).classname;
                 currentBlock.lines.add(line);
@@ -440,6 +440,7 @@ public class IRBuilder implements ASTVisitor {
 
     @Override
     public void visit(newExpr it) {
+        if(it.sizeList==null) it.sizeList = new ArrayList<>();
         it.sizeList.forEach(x -> x.accept(this));
         it.regId = newMalloc(it, 0);
     }
@@ -480,7 +481,7 @@ public class IRBuilder implements ASTVisitor {
         }
 
         if (have_ptr == 1){
-            if (it.firstExpr instanceof varExpr){
+            if (it.firstExpr.From != null){
                 IRLine line = new IRLine(lineType.MOVE);
                 line.args.add(new IRRegIdentifier(0, 3, false));
                 line.args.add(it.firstExpr.regId);

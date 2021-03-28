@@ -10,7 +10,6 @@ public class IRBlockList {
     public boolean haveNoReturn = false;
 
     public IRBlockList() {
-
     }
 
     public int addString(String str) {
@@ -31,7 +30,42 @@ public class IRBlockList {
             System.out.print(") ");
             System.out.println(globals.get(i));
         }
-        blocks.forEach(b -> b.print());
+        blocks.forEach(x -> x.print());
+    }
+
+    public void initASM() {
+        /*blocks.forEach(b -> b.expand());
+        blocks.forEach(b -> b.alloc());
+        blocks.forEach(b -> b.expandLocal());
+        blocks.forEach(b -> b.allocLocal());
+        blocks.forEach(b -> b.cutMove());
+        blocks.forEach(b -> b.calcRAM());*/
+    }
+
+    public void printASM() {
+        if (strings.size()>0 || globals.size()>0) {
+            System.out.println("\t.text");
+            for (int i = 0; i < strings.size(); i++){
+                if (i == 0) System.out.println("\t.section\t.rodata");
+                System.out.println("\t.align\t2");
+                System.out.print(".LS");
+                System.out.print(i);
+                System.out.println(":");
+                System.out.print("\t.string\t");
+                System.out.println("\""+strings.get(i)+"\"");
+            }
+            for (int i = 0; i < globals.size(); i++) {
+                String s = ".G" + String.valueOf(i);
+                System.out.println("\t.globl\t"+s);
+                if (i == 0) System.out.println("\t.section\t.sbss,\"aw\",@nobits");
+                System.out.println("\t.align\t2");
+                System.out.println("\t.type\t"+s+", @object");
+                System.out.println("\t.size\t"+s+", 4");
+                System.out.println(s+":");
+                System.out.println("\t.zero\t4");
+            }
+        }
+        blocks.forEach(b -> b.printASM());
     }
 
 }

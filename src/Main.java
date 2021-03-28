@@ -47,7 +47,9 @@ public class Main {
             IRBlockList bkList = new IRBlockList();
             new SemanticChecker(global, bkList).visit(ASTRoot);
             new IRBuilder(global, bkList).visit(ASTRoot);
-            bkList.print();
+            //bkList.print();
+            bkList.initASM();
+            bkList.printASM();
         } catch (Error er) {
             System.err.println(er.toString());
             throw new RuntimeException();
