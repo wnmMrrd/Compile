@@ -355,7 +355,7 @@ public class IRBlock {
         });
         lines = new_lines;
     }
-
+    
     public void printASM(){
         System.out.println("\t.text");
         System.out.println("\t.align\t2");
