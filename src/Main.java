@@ -21,9 +21,22 @@ import java.io.FileInputStream;
 public class Main {
     public static void main(String[] args) throws Exception {
 
-        //InputStream input = System.in;
-        String name = "test.mx";
-        InputStream input = new FileInputStream(name);
+        boolean onlySemantic = false, onlyIR = false;
+        InputStream input = System.in;
+        for (String arg : args) {
+            switch (arg) {
+                case "-semantic":
+                    onlySemantic = true;
+                    break;
+                case "-IR":
+                    onlyIR = true;
+                    break;
+                case "-test":
+                    String name = "test1.mx";
+                    input = new FileInputStream(name);
+                    break;
+            }
+        }
 
         try {
             ProgramNode ASTRoot;
@@ -38,16 +51,21 @@ public class Main {
             ParseTree parseTreeRoot = parser.program();
             ASTBuilder astBuilder = new ASTBuilder();
             ASTRoot = (ProgramNode) astBuilder.visit(parseTreeRoot);
-            //System.out.println(1);
             new SymbolCollector(global).visit(ASTRoot);
-            //System.out.println(2);
             new TypeCollector(global).visit(ASTRoot);
-            //System.out.println(3);
             global.varmap.clear();
             IRBlockList bkList = new IRBlockList();
             new SemanticChecker(global, bkList).visit(ASTRoot);
+            if (!onlySemantic){
+                new IRBuilder(global, bkList).visit(ASTRoot);
+                if (onlyIR){
+                    bkList.print();
+                }else{
+                    bkList.initASM();
+                    bkList.printASM();
+                }
+            }
             new IRBuilder(global, bkList).visit(ASTRoot);
-            //bkList.print();
             bkList.initASM();
             bkList.printASM();
         } catch (Error er) {
