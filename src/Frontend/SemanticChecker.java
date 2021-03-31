@@ -6,6 +6,8 @@ import Util.symbol.*;
 import Util.RegIdAllocator;
 import IR.*;
 
+import java.util.HashMap;
+
 public class SemanticChecker implements ASTVisitor {
     public Scope global,current;
     public classType currentclass;
@@ -13,6 +15,8 @@ public class SemanticChecker implements ASTVisitor {
     public boolean returndone;
     public int depth = 0;
     public IRBlockList bkList;
+
+    HashMap<classType, Scope> classToScope = new HashMap<>();
 
     public SemanticChecker(Scope global, IRBlockList bkList) {
         this.global = global;
@@ -37,6 +41,7 @@ public class SemanticChecker implements ASTVisitor {
         current.idSet = new RegIdAllocator();
         it.scope = current;
         currentclass = (classType)global.typemap.get(it.classname);
+        classToScope.put(currentclass, current);
         currentclass.varmap.forEach((key, value) -> current.defineVariable(key, value, it.pos));
         currentclass.funcmap.forEach((key, value) -> current.defineFunction(key, value, it.pos));
         if (it.constructor != null) {
@@ -62,7 +67,8 @@ public class SemanticChecker implements ASTVisitor {
         if (currentclass != null) {
             current.defineVariable("!this", new varType(currentclass, "!this"), it.pos);
             current.defineVarId("!this", 1);
-        }
+            it.id2 = currentclass.funcmap.get(it.id).funcname;
+        } else it.id2 = it.id;
         it.List.forEach(
                 x -> {
                     current.defineVariable(x.id, new varType(global.getType(x.type), x.id), x.pos);
@@ -242,6 +248,7 @@ public class SemanticChecker implements ASTVisitor {
             } else {
                 if(originclass.varmap.containsKey(it.id)) it.type = originclass.varmap.get(it.id).origintype;
                 else throw new semanticError("memberExpr:variable not included in class", it.pos);
+                it.scope = classToScope.get(originclass);
             }
         } else {
             throw new semanticError("memberExpr:undefined member", it.pos);

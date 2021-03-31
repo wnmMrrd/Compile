@@ -53,7 +53,7 @@ public class IRBuilder implements ASTVisitor {
         currentBlock = new IRBlock(it.scope.idSet, it.id, ++labelNum);
         bkList.blocks.add(currentBlock);
         IRLine line = new IRLine(lineType.FUNC);
-        line.func = it.id;
+        line.func = it.id2;
         currentBlock.lines.add(line);
 
         if (currentclass == null) {
@@ -500,7 +500,7 @@ public class IRBuilder implements ASTVisitor {
             if (it.firstExpr instanceof varExpr) line.func = ((classType)it.From).funcmap.get(((varExpr)it.firstExpr).id).funcname;
             else if (it.firstExpr.From instanceof arrayType) line.func = "my_array_size";
             else if (it.firstExpr.From.isString()) line.func = "my_c_string_"+((memberExpr)it.firstExpr).id;
-            else line.func = ((classType)it.From).funcmap.get(((memberExpr)it.firstExpr).id).funcname;
+            else line.func = ((classType)((memberExpr)it.firstExpr).From).funcmap.get(((memberExpr)it.firstExpr).id).funcname;
         }
         currentBlock.lines.add(line);
 

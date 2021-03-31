@@ -84,7 +84,7 @@ public class SymbolCollector implements ASTVisitor {
     @Override
     public void visit(funcDef it) {
         if (classname == null) current.defineFunction(it.id, new funcType(it.id), it.pos);
-        else current.defineFunction(it.id, new funcType("my_"+classname+"_"+it.id), it.pos);
+        else current.defineFunction(it.id, new funcType("my_c_"+classname+"_"+it.id), it.pos);
     }
 
     //Stmt

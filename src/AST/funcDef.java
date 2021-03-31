@@ -6,7 +6,7 @@ import java.util.ArrayList;
 
 public class funcDef extends DefNode {
     public TypeNode returntype;
-    public String id;
+    public String id, id2;
     public blockStmt body;
     public ArrayList<varDefSubStmt> List;
 
