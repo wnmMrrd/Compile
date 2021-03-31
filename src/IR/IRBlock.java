@@ -23,9 +23,8 @@ public class IRBlock {
     public void print(){
         lines.forEach(l -> l.print());
     }
-
-    public void expand() {
-        ArrayList new_lines = new ArrayList<>();
+    public void expand(){
+        ArrayList<IRLine> new_lines = new ArrayList<>();
         lines.forEach(line -> {
             boolean flag = false;
             if (line.type == lineType.CALL)  containsCALL = true;
@@ -68,8 +67,9 @@ public class IRBlock {
             }
             new_lines.add(line);
             if (flag) {
-                IRRegIdentifier rd = line.args.get(0), temp1, temp2;
+                IRRegIdentifier rd = line.args.get(0);
                 IRLine new_line;
+                IRRegIdentifier temp1, temp2;
                 switch (rd.type){
                     case 3:
                         if (rd.id >= 6) {
@@ -190,7 +190,7 @@ public class IRBlock {
                     if (used_l_reg[rd.id] != null) temp = used_l_reg[rd.id];
                     else {
                         int reg = getFreeReg(rd.id);
-                        if (reg == 0) temp = used_reg[rd.id] = idSet.RegIdAlloca(1);
+                        if (reg == 0) temp = used_l_reg[rd.id] = idSet.RegIdAlloca(1);
                         else {
                             reg_free[reg] = 0;
                             temp = used_reg[rd.id] = new IRRegIdentifier(reg, 0, false);
@@ -202,6 +202,7 @@ public class IRBlock {
             }
         }
     }
+
 
     public void easyRelease(IRLine line, int l, int r) {
         for (int i=l; i<r; i++) {
@@ -264,7 +265,10 @@ public class IRBlock {
                     for (int i=0; i<tempSz; i++) {
                         if (used[i] > 0) {
                             if (used_reg[i] != null){
-                                used_reg[i] = idSet.RegIdAlloca(1);
+                                IRRegIdentifier new_reg = idSet.RegIdAlloca(1);
+                                used_reg[i].type = new_reg.type;
+                                used_reg[i].id = new_reg.id;
+                                used_reg[i].isPointer = new_reg.isPointer;
                                 used[i] = 0;
                             }
                         }
