@@ -67,7 +67,8 @@ public class SemanticChecker implements ASTVisitor {
         if (currentclass != null) {
             current.defineVariable("!this", new varType(currentclass, "!this"), it.pos);
             current.defineVarId("!this", 1);
-            it.id2 = currentclass.funcmap.get(it.id).funcname;
+            if (currentclass.funcmap.get(it.id) == null) it.id2 = "my_c_"+it.id+"_"+it.id;
+            else it.id2 = currentclass.funcmap.get(it.id).funcname;
         } else it.id2 = it.id;
         it.List.forEach(
                 x -> {
