@@ -50,8 +50,7 @@ public class IRBuilder implements ASTVisitor {
 
     @Override
     public void visit(funcDef it) {
-        if (currentclass == null) currentBlock = new IRBlock(it.scope.idSet, it.id, ++labelNum);
-        else currentBlock = new IRBlock(it.scope.idSet, "my_c_"+currentclass.classname+"_"+it.id, ++labelNum);
+        currentBlock = new IRBlock(it.scope.idSet, it.id2, ++labelNum);
         bkList.blocks.add(currentBlock);
         IRLine line = new IRLine(lineType.FUNC);
         line.func = it.id2;
