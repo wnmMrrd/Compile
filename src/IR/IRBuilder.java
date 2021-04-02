@@ -8,6 +8,8 @@ import java.util.ArrayList;
 
 public class IRBuilder implements ASTVisitor {
 
+    //public boolean Flag=false;
+
     public Scope global;
     public classType currentclass = null;
     public ArrayList<varDefSubStmt> globalVar;
@@ -44,6 +46,7 @@ public class IRBuilder implements ASTVisitor {
     @Override
     public void visit(classDef it) {
         currentclass = (classType)global.typemap.get(it.classname);
+        if (it.constructor != null) it.constructor.accept(this);
         it.funcList.forEach(x -> x.accept(this));
         currentclass = null;
     }
@@ -266,6 +269,7 @@ public class IRBuilder implements ASTVisitor {
     //Expr
     @Override
     public void visit(varExpr it) {
+        //if (it.regId != null) System.out.println("shit");
         if (it.regId != null && it.regId.type == 11) {
             IRRegIdentifier tmp = currentBlock.idSet.RegIdAlloca(5);
             IRLine line = new IRLine(lineType.LOAD);
@@ -664,7 +668,10 @@ public class IRBuilder implements ASTVisitor {
             currentBlock.lines.add(line);
         } else if (it.opcode.equals("=")) {
             it.rhs.accept(this);
+            //Flag = true;
             it.lhs.accept(this);
+            //Flag = false;
+            //if (it.lhs.regId == null) System.out.println("fuck");
             line = new IRLine(lineType.MOVE);
             line.args.add(it.lhs.regId);
             line.args.add(it.rhs.regId);
