@@ -50,7 +50,8 @@ public class IRBuilder implements ASTVisitor {
 
     @Override
     public void visit(funcDef it) {
-        currentBlock = new IRBlock(it.scope.idSet, it.id, ++labelNum);
+        if (currentclass == null) currentBlock = new IRBlock(it.scope.idSet, it.id, ++labelNum);
+        else currentBlock = new IRBlock(it.scope.idSet, "my_c_"+currentclass.classname+"_"+it.id, ++labelNum);
         bkList.blocks.add(currentBlock);
         IRLine line = new IRLine(lineType.FUNC);
         line.func = it.id2;
@@ -145,7 +146,6 @@ public class IRBuilder implements ASTVisitor {
         if (it.elseStmt != null) {
             line = new IRLine(lineType.LABEL);
             line.label = elseLab;
-            //if (this.label == )
             currentBlock.lines.add(line);
             it.elseStmt.accept(this);
         }
@@ -280,6 +280,8 @@ public class IRBuilder implements ASTVisitor {
             line.args.add(new IRRegIdentifier(0, 1, false));
             line.args.add(tmp);
             currentBlock.lines.add(line);
+
+            it.regId = new IRRegIdentifier(regId.id, regId.type, true);
         }
     }
 
@@ -668,6 +670,7 @@ public class IRBuilder implements ASTVisitor {
             line.args.add(it.lhs.regId);
             line.args.add(it.rhs.regId);
             currentBlock.lines.add(line);
+            it.regId = it.lhs.regId;
         } else {
             it.regId = currentBlock.idSet.RegIdAlloca(5);
             it.lhs.accept(this);
