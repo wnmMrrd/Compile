@@ -44,20 +44,23 @@ public class SemanticChecker implements ASTVisitor {
         classToScope.put(currentclass, current);
         currentclass.varmap.forEach((key, value) -> current.defineVariable(key, value, it.pos));
         currentclass.funcmap.forEach((key, value) -> current.defineFunction(key, value, it.pos));
-        if (it.constructor != null) {
-            if (!it.constructor.id.equals(it.classname)) throw new semanticError("classDef:constructor name wrong", it.pos);
-            it.constructor.accept(this);
-        }
         it.varList.forEach( x -> {
             x.scope=current;
             x.scope.defineVarId(x.id, 11);
         });
+        if (it.constructor != null) {
+            if (!it.constructor.id.equals(it.classname)) throw new semanticError("classDef:constructor name wrong", it.pos);
+            it.constructor.accept(this);
+        }
+        //System.out.println(current.getRegId("x", true) == null);
         it.funcList.forEach(x -> x.accept(this));
         current = current.parentScope;
         currentclass = null;
     }
 
     @Override public void visit(funcDef it) {
+        //System.out.println(it.id);
+        //if (it.id.equals("point")) System.out.println(current.getRegId("x", true) == null);
         if (it.returntype == null) currentreturntype = new simpleType("void");
         else currentreturntype = global.getType(it.returntype);
         returndone = false;
@@ -192,6 +195,7 @@ public class SemanticChecker implements ASTVisitor {
     @Override public void visit(varExpr it) {
         it.scope = current;
         it.regId = current.getRegId(it.id ,true);
+        //if (it.id.equals("x")) System.out.println(cu);
         it.type = current.getVariable(it.id, true, it.pos).origintype;
     }
 
